@@ -18,6 +18,13 @@ var resourceTemplateApplications = mcp.ResourceTemplate{
 	MimeType: "application/json",
 }
 
+var resourceTemplateDeployments = mcp.ResourceTemplate{
+	URITemplate: "pipecd://deployments/{deploymentId}",
+	Name: 	  "Deployment",
+	Description: "A deployment managed by PipeCD",
+	MimeType: "application/json",
+}
+
 func (s *Server) ReadResource(ctx context.Context, request *mcp.Request[mcp.ReadResourceRequestParams]) (*mcp.Result[mcp.ReadResourceResultData], error) {
 	u, err := url.Parse(request.Params.URI)
 	if err != nil {
@@ -31,6 +38,7 @@ func (s *Server) ReadResource(ctx context.Context, request *mcp.Request[mcp.Read
 	case "applications":
 		return s.readApplication(ctx, u)
 	case "deployments":
+		return s.readDeployment(ctx, u)
 	}
 
 	return nil, jsonrpc2.NewError(jsonrpc2.CodeInvalidParams, "unsupported resource type", struct{}{})
@@ -52,6 +60,37 @@ func (s *Server) readApplication(ctx context.Context, u *url.URL) (*mcp.Result[m
 	b, err := protojson.Marshal(app)
 	if err != nil {
 		return nil, jsonrpc2.NewError(jsonrpc2.CodeInternalError, "failed to marshal application", struct{}{})
+	}
+
+	return &mcp.Result[mcp.ReadResourceResultData]{
+		Data: mcp.ReadResourceResultData{
+			Contents: []mcp.IsResourceContents{
+				mcp.TextResourceContents{
+					URI:      u.String(),
+					MimeType: "application/json",
+					Text:     string(b),
+				},
+			},
+		},
+	}, nil
+}
+
+func (s *Server) readDeployment(ctx context.Context, u *url.URL) (*mcp.Result[mcp.ReadResourceResultData], error){
+	id := path.Base(u.Path)
+	if id == "" {
+		return nil, jsonrpc2.NewError(jsonrpc2.CodeInvalidParams, "missing deployment ID", struct{}{})
+	}
+
+	deployment, err := s.client.GetDeployment(ctx, &apiservice.GetDeploymentRequest{
+		DeploymentId: id,
+	})
+	if err != nil {
+		return nil, jsonrpc2.NewError(jsonrpc2.CodeInternalError, "failed to get deployment", struct{}{})
+	}
+
+	b, err := protojson.Marshal(deployment)
+	if err != nil {
+		return nil, jsonrpc2.NewError(jsonrpc2.CodeInternalError, "failed to marshal deployment", struct{}{})
 	}
 
 	return &mcp.Result[mcp.ReadResourceResultData]{

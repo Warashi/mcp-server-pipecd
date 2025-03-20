@@ -27,6 +27,7 @@ func main() {
 	opts := []mcp.ServerOption{
 		mcp.WithResourceReader(s),
 		mcp.WithResourceTemplate(resourceTemplateApplications),
+		mcp.WithResourceTemplate(resourceTemplateDeployments),
 	}
 
 	server := mcp.NewStdioServer("PipeCD MCP Server", "0.0.1", opts...)
