@@ -13,16 +13,16 @@ import (
 
 var resourceTemplateApplications = mcp.ResourceTemplate{
 	URITemplate: "pipecd://applications/{applicationId}",
-	Name: 	  "Application",
+	Name:        "Application",
 	Description: "An application managed by PipeCD",
-	MimeType: "application/json",
+	MimeType:    "application/json",
 }
 
 var resourceTemplateDeployments = mcp.ResourceTemplate{
 	URITemplate: "pipecd://deployments/{deploymentId}",
-	Name: 	  "Deployment",
+	Name:        "Deployment",
 	Description: "A deployment managed by PipeCD",
-	MimeType: "application/json",
+	MimeType:    "application/json",
 }
 
 func (s *Server) ReadResource(ctx context.Context, request *mcp.Request[mcp.ReadResourceRequestParams]) (*mcp.Result[mcp.ReadResourceResultData], error) {
@@ -75,7 +75,7 @@ func (s *Server) readApplication(ctx context.Context, u *url.URL) (*mcp.Result[m
 	}, nil
 }
 
-func (s *Server) readDeployment(ctx context.Context, u *url.URL) (*mcp.Result[mcp.ReadResourceResultData], error){
+func (s *Server) readDeployment(ctx context.Context, u *url.URL) (*mcp.Result[mcp.ReadResourceResultData], error) {
 	id := path.Base(u.Path)
 	if id == "" {
 		return nil, jsonrpc2.NewError(jsonrpc2.CodeInvalidParams, "missing deployment ID", struct{}{})
