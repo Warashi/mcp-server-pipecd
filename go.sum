@@ -1,2 +1,4 @@
 github.com/Warashi/go-modelcontextprotocol v0.0.0-20250319094016-f887ef1bc884 h1:YRNUEPef8E3TYaFo5plsTSZndHWFjmOfu04K30UO0Q8=
 github.com/Warashi/go-modelcontextprotocol v0.0.0-20250319094016-f887ef1bc884/go.mod h1:kaPaXLdBxFlaYweYd4p3Y4TMcCc0474zprSCtbLcFAU=
+github.com/Warashi/go-modelcontextprotocol v0.0.0-20250320000501-614b1ac457db h1:oxNF7EDed8uK4uqP1psa2MsvPtaQ8GchLeQy5I3j7n0=
+github.com/Warashi/go-modelcontextprotocol v0.0.0-20250320000501-614b1ac457db/go.mod h1:kaPaXLdBxFlaYweYd4p3Y4TMcCc0474zprSCtbLcFAU=
