@@ -4,6 +4,8 @@ github.com/Warashi/go-modelcontextprotocol v0.0.0-20250320000501-614b1ac457db h1
 github.com/Warashi/go-modelcontextprotocol v0.0.0-20250320000501-614b1ac457db/go.mod h1:kaPaXLdBxFlaYweYd4p3Y4TMcCc0474zprSCtbLcFAU=
 github.com/Warashi/go-modelcontextprotocol v0.0.0-20250320002946-88b9e60907e6 h1:8sml+H6z1v3VXnJPnLUjjV1baVYI5dU3OGNxp63vVD8=
 github.com/Warashi/go-modelcontextprotocol v0.0.0-20250320002946-88b9e60907e6/go.mod h1:kaPaXLdBxFlaYweYd4p3Y4TMcCc0474zprSCtbLcFAU=
+github.com/Warashi/go-modelcontextprotocol v0.0.0-20250320005631-3abdd3ea9a81 h1:zfipgNcMbDSi4bf2gWRxNZJc805uk7JO1pCVgFSdTP4=
+github.com/Warashi/go-modelcontextprotocol v0.0.0-20250320005631-3abdd3ea9a81/go.mod h1:kaPaXLdBxFlaYweYd4p3Y4TMcCc0474zprSCtbLcFAU=
 github.com/coreos/go-oidc/v3 v3.11.0 h1:Ia3MxdwpSw702YW0xgfmP1GVCMA9aEFWu12XUZ3/OtI=
 github.com/coreos/go-oidc/v3 v3.11.0/go.mod h1:gE3LgjOgFoHi9a4ce4/tJczr0Ai2/BoDhf0r5lltWI0=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
