@@ -27,6 +27,7 @@ type deployment struct {
 	Status        string               `json:"status"`
 	StatusReason  string               `json:"statusReason"`
 	Artifacts     []deploymentArtifact `json:"artifacts"`
+	StageIDs      []string             `json:"stageIds"`
 }
 
 type deploymentArtifact struct {
@@ -47,6 +48,11 @@ func newDeployment(d *model.Deployment) *deployment {
 		})
 	}
 
+	stageIDs := make([]string, 0, len(d.GetStages()))
+	for _, s := range d.GetStages() {
+		stageIDs = append(stageIDs, s.GetId())
+	}
+
 	return &deployment{
 		ID:            d.GetId(),
 		ApplicationID: d.GetApplicationId(),
@@ -55,6 +61,7 @@ func newDeployment(d *model.Deployment) *deployment {
 		Status:        d.GetStatus().String(),
 		StatusReason:  d.GetStatusReason(),
 		Artifacts:     artifacts,
+		StageIDs:      stageIDs,
 	}
 }
 
