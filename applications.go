@@ -52,15 +52,15 @@ func (s *Server) listApplicationsTool() mcp.Tool[*listApplicationsRequest] {
 	)
 }
 
-func (s *Server) listApplications(ctx context.Context, request *listApplicationsRequest) ([]any, error) {
+func (s *Server) listApplications(ctx context.Context, request *listApplicationsRequest) (any, error) {
 	response, err := s.client.ListApplications(ctx, &apiservice.ListApplicationsRequest{
 		Cursor: request.Cursor,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return []any{&listApplicationsResponse{
+	return &listApplicationsResponse{
 		Applications: response.GetApplications(),
 		NextCursor:   response.GetCursor(),
-	}}, nil
+	}, nil
 }
