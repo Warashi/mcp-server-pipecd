@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 
 	"github.com/Warashi/go-modelcontextprotocol/jsonschema"
 	"github.com/Warashi/go-modelcontextprotocol/mcp"
@@ -17,6 +19,10 @@ type listDeploymentsRequest struct {
 type listDeploymentsResponse struct {
 	Deployments []*deployment `json:"deployments"`
 	NextCursor  string        `json:"nextCursor"`
+}
+
+type getDeploymentRequest struct {
+	ID string `json:"id"`
 }
 
 type deployment struct {
@@ -96,5 +102,41 @@ func (s *Server) listDeployments(ctx context.Context, request *listDeploymentsRe
 	return &listDeploymentsResponse{
 		Deployments: deployments,
 		NextCursor:  response.GetCursor(),
+	}, nil
+}
+
+func (s *Server) getDeploymentTool() mcp.Tool[*getDeploymentRequest, *mcp.EmbeddedResource] {
+	return mcp.NewToolFunc(
+		"GetDeployment",
+		"Get a deployment managed by PipeCD",
+		jsonschema.Object{
+			Properties: map[string]jsonschema.Schema{
+				"id": jsonschema.String{},
+			},
+			Required: []string{"id"},
+		},
+		s.getDeployment,
+	)
+}
+
+func (s *Server) getDeployment(ctx context.Context, request *getDeploymentRequest) (*mcp.EmbeddedResource, error) {
+	response, err := s.client.GetDeployment(ctx, &apiservice.GetDeploymentRequest{
+		DeploymentId: request.ID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	b, err := json.Marshal(newDeployment(response.Deployment))
+	if err != nil {
+		return nil, err
+	}
+
+	return &mcp.EmbeddedResource{
+		Resource: mcp.TextResourceContents{
+			URI: fmt.Sprintf("pipecd://deployment/%s", response.Deployment.GetId()),	
+			MimeType: "application/json",
+			Text: string(b),
+		},
 	}, nil
 }
