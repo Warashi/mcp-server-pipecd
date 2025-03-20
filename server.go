@@ -35,3 +35,7 @@ func NewServer(ctx context.Context, addr, key string, insecure bool) (*Server, e
 		client: client,
 	}, nil
 }
+
+func (s *Server) Close() error {
+	return s.client.Close()
+}
