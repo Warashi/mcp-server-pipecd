@@ -48,6 +48,7 @@ func main() {
 		mcp.WithResourceTemplate(resourceTemplateApplications),
 		mcp.WithResourceTemplate(resourceTemplateDeployments),
 		mcp.WithTool(s.listApplicationsTool()),
+		mcp.WithTool(s.listDeploymentsTool()),
 	}
 
 	server := mcp.NewStdioServer("PipeCD MCP Server", "0.0.1", opts...)

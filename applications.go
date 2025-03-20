@@ -2,41 +2,58 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/Warashi/go-modelcontextprotocol/jsonschema"
 	"github.com/Warashi/go-modelcontextprotocol/mcp"
 	"github.com/pipe-cd/pipecd/pkg/app/server/service/apiservice"
 	"github.com/pipe-cd/pipecd/pkg/model"
-	"google.golang.org/protobuf/encoding/protojson"
 )
-
-type listApplicationsResponse struct {
-	Applications []*model.Application
-	NextCursor   string
-}
-
-func (r *listApplicationsResponse) MarshalJSON() ([]byte, error) {
-	apps := make([]json.RawMessage, 0, len(r.Applications))
-	for _, app := range r.Applications {
-		b, err := protojson.Marshal(app)
-		if err != nil {
-			return nil, err
-		}
-		apps = append(apps, b)
-	}
-
-	return json.Marshal(struct {
-		Applications []json.RawMessage `json:"applications"`
-		NextCursor   string            `json:"nextCursor"`
-	}{
-		Applications: apps,
-		NextCursor:   r.NextCursor,
-	})
-}
 
 type listApplicationsRequest struct {
 	Cursor string `json:"cursor"`
+}
+
+type listApplicationsResponse struct {
+	Applications []*application `json:"applications"`
+	NextCursor   string         `json:"nextCursor"`
+}
+
+type application struct {
+	ID                         string                `json:"id"`
+	Name                       string                `json:"name"`
+	PipedID                    string                `json:"pipedId"`
+	ProjectID                  string                `json:"projectId"`
+	DeployTargets              []string              `json:"deployTargets"`
+	Description                string                `json:"description"`
+	Labels                     map[string]string     `json:"labels"`
+	LastSuccessfulDeploymentID string                `json:"lastSuccessfulDeploymentID"`
+	SyncState                  *applicationSyncState `json:"syncState"`
+}
+
+type applicationSyncState struct {
+	Status           string `json:"status"`
+	ShortReason      string `json:"shortReason"`
+	Reason           string `json:"reason"`
+	HeadDeploymentID string `json:"headDeploymentId"`
+}
+
+func newApplication(a *model.Application) *application {
+	return &application{
+		ID:                         a.GetId(),
+		Name:                       a.GetName(),
+		PipedID:                    a.GetPipedId(),
+		ProjectID:                  a.GetProjectId(),
+		DeployTargets:              a.GetDeployTargets(),
+		Description:                a.GetDescription(),
+		Labels:                     a.GetLabels(),
+		LastSuccessfulDeploymentID: a.GetMostRecentlySuccessfulDeployment().GetDeploymentId(),
+		SyncState: &applicationSyncState{
+			Status:           a.GetSyncState().GetStatus().String(),
+			ShortReason:      a.GetSyncState().GetShortReason(),
+			Reason:           a.GetSyncState().GetReason(),
+			HeadDeploymentID: a.GetSyncState().GetHeadDeploymentId(),
+		},
+	}
 }
 
 func (s *Server) listApplicationsTool() mcp.Tool[*listApplicationsRequest, *listApplicationsResponse] {
@@ -59,8 +76,14 @@ func (s *Server) listApplications(ctx context.Context, request *listApplications
 	if err != nil {
 		return nil, err
 	}
+
+	apps := make([]*application, 0, len(response.Applications))
+	for _, a := range response.Applications {
+		apps = append(apps, newApplication(a))
+	}
+
 	return &listApplicationsResponse{
-		Applications: response.GetApplications(),
+		Applications: apps,
 		NextCursor:   response.GetCursor(),
 	}, nil
 }
