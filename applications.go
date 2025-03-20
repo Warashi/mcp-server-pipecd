@@ -39,7 +39,7 @@ type listApplicationsRequest struct {
 	Cursor string `json:"cursor"`
 }
 
-func (s *Server) listApplicationsTool() mcp.Tool[*listApplicationsRequest] {
+func (s *Server) listApplicationsTool() mcp.Tool[*listApplicationsRequest, *listApplicationsResponse] {
 	return mcp.NewToolFunc(
 		"ListApplications",
 		"List applications managed by PipeCD",
@@ -52,7 +52,7 @@ func (s *Server) listApplicationsTool() mcp.Tool[*listApplicationsRequest] {
 	)
 }
 
-func (s *Server) listApplications(ctx context.Context, request *listApplicationsRequest) (any, error) {
+func (s *Server) listApplications(ctx context.Context, request *listApplicationsRequest) (*listApplicationsResponse, error) {
 	response, err := s.client.ListApplications(ctx, &apiservice.ListApplicationsRequest{
 		Cursor: request.Cursor,
 	})
