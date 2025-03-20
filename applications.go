@@ -63,5 +63,4 @@ func (s *Server) listApplications(ctx context.Context, request *listApplications
 		Applications: response.GetApplications(),
 		NextCursor:   response.GetCursor(),
 	}}, nil
-
 }
