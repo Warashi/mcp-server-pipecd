@@ -9,15 +9,34 @@ import (
 )
 
 const (
-	PIPECD_HOST_ENV     = "PIPECD_HOST"
-	PIPECD_API_KEY_ENV  = "PIPECD_API_KEY"
-	PIPECD_INSECURE_ENV = "PIPECD_INSECURE"
+	PIPECD_HOST_ENV         = "PIPECD_HOST"
+	PIPECD_API_KEY_ENV      = "PIPECD_API_KEY"
+	PIPECD_API_KEY_FILE_ENV = "PIPECD_API_KEY_FILE"
+	PIPECD_INSECURE_ENV     = "PIPECD_INSECURE"
 )
 
 func main() {
 	addr := os.Getenv(PIPECD_HOST_ENV)
 	key := os.Getenv(PIPECD_API_KEY_ENV)
+	if key == "" {
+		keyFile := os.Getenv(PIPECD_API_KEY_FILE_ENV)
+		if keyFile != "" {
+			b, err := os.ReadFile(keyFile)
+			if err != nil {
+				log.Fatalf("failed to read api key file: %v", err)
+			}
+			key = string(b)
+		}
+	}
+
 	insecure := os.Getenv(PIPECD_INSECURE_ENV) == "true"
+
+	if addr == "" {
+		log.Fatalln("PIPECD_HOST is required")
+	}
+	if key == "" {
+		log.Fatalln("PIPECD_API_KEY or PIPECD_API_KEY_FILE is required")
+	}
 
 	s, err := NewServer(context.Background(), addr, key, insecure)
 	if err != nil {
