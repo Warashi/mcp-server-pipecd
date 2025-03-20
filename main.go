@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	PIPECD_INSECURE_ENV = "PIPECD_INSECURE"
 	PIPECD_HOST_ENV     = "PIPECD_HOST"
 	PIPECD_API_KEY_ENV  = "PIPECD_API_KEY"
+	PIPECD_INSECURE_ENV = "PIPECD_INSECURE"
 )
 
 func main() {
@@ -26,6 +26,7 @@ func main() {
 
 	opts := []mcp.ServerOption{
 		mcp.WithResourceReader(s),
+		mcp.WithResourceTemplate(resourceTemplateApplications),
 	}
 
 	server := mcp.NewStdioServer("PipeCD MCP Server", "0.0.1", opts...)

@@ -11,6 +11,13 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
+var resourceTemplateApplications = mcp.ResourceTemplate{
+	URITemplate: "pipecd://applications/{applicationId}",
+	Name: 	  "Application",
+	Description: "An application managed by PipeCD",
+	MimeType: "application/json",
+}
+
 func (s *Server) ReadResource(ctx context.Context, request *mcp.Request[mcp.ReadResourceRequestParams]) (*mcp.Result[mcp.ReadResourceResultData], error) {
 	u, err := url.Parse(request.Params.URI)
 	if err != nil {
