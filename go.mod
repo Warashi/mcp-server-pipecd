@@ -3,7 +3,7 @@ module github.com/Warashi/mcp-server-pipecd
 go 1.24.1
 
 require (
-	github.com/Warashi/go-modelcontextprotocol v0.0.0-20250320053824-3c435956e766
+	github.com/Warashi/go-modelcontextprotocol v0.0.0-20250321015447-c4c6a4f4209d
 	google.golang.org/grpc v1.71.0
 )
 
