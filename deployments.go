@@ -31,8 +31,9 @@ var resourceTemplateDeploymentStageLogs = mcp.ResourceTemplate{
 }
 
 type listDeploymentsRequest struct {
-	ApplicationID string `json:"applicationId"`
-	Cursor        string `json:"cursor"`
+	ApplicationID string            `json:"applicationId"`
+	Cursor        string            `json:"cursor"`
+	Labels        map[string]string `json:"labels"`
 }
 
 type listDeploymentsResponse struct {
@@ -113,8 +114,16 @@ func (s *Server) listDeploymentsTool() mcp.Tool[*listDeploymentsRequest, *listDe
 		"List deployments managed by PipeCD",
 		jsonschema.Object{
 			Properties: map[string]jsonschema.Schema{
-				"cursor":        jsonschema.String{},
-				"applicationId": jsonschema.String{},
+				"cursor": jsonschema.String{
+					Description: "The cursor to start listing from",
+				},
+				"applicationId": jsonschema.String{
+					Description: "The application ID to list deployments for",
+				},
+				"labels": jsonschema.Map{
+					Description:          "The labels to filter deployments by",
+					AdditionalProperties: jsonschema.String{},
+				},
 			},
 		},
 		s.listDeployments,
@@ -130,6 +139,7 @@ func (s *Server) listDeployments(ctx context.Context, request *listDeploymentsRe
 	response, err := s.client.ListDeployments(ctx, &apiservice.ListDeploymentsRequest{
 		ApplicationIds: applicationIDs,
 		Cursor:         request.Cursor,
+		Labels:         request.Labels,
 	})
 	if err != nil {
 		return nil, err
