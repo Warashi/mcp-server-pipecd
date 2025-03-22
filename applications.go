@@ -2,12 +2,23 @@ package main
 
 import (
 	"context"
+	"net/url"
+	"path"
 
+	"github.com/Warashi/go-modelcontextprotocol/jsonrpc2"
 	"github.com/Warashi/go-modelcontextprotocol/jsonschema"
 	"github.com/Warashi/go-modelcontextprotocol/mcp"
 	"github.com/pipe-cd/pipecd/pkg/app/server/service/apiservice"
 	"github.com/pipe-cd/pipecd/pkg/model"
+	"google.golang.org/protobuf/encoding/protojson"
 )
+
+var resourceTemplateApplications = mcp.ResourceTemplate{
+	URITemplate: "pipecd://applications/{applicationId}",
+	Name:        "Application",
+	Description: "An application managed by PipeCD",
+	MimeType:    "application/json",
+}
 
 type listApplicationsRequest struct {
 	Cursor string `json:"cursor"`
@@ -85,5 +96,36 @@ func (s *Server) listApplications(ctx context.Context, request *listApplications
 	return &listApplicationsResponse{
 		Applications: apps,
 		NextCursor:   response.GetCursor(),
+	}, nil
+}
+
+func (s *Server) readApplication(ctx context.Context, u *url.URL) (*mcp.Result[mcp.ReadResourceResultData], error) {
+	id := path.Base(u.Path)
+	if id == "" {
+		return nil, jsonrpc2.NewError(jsonrpc2.CodeInvalidParams, "missing application ID", struct{}{})
+	}
+
+	app, err := s.client.GetApplication(ctx, &apiservice.GetApplicationRequest{
+		ApplicationId: id,
+	})
+	if err != nil {
+		return nil, jsonrpc2.NewError(jsonrpc2.CodeInternalError, "failed to get application", struct{}{})
+	}
+
+	b, err := protojson.Marshal(app)
+	if err != nil {
+		return nil, jsonrpc2.NewError(jsonrpc2.CodeInternalError, "failed to marshal application", struct{}{})
+	}
+
+	return &mcp.Result[mcp.ReadResourceResultData]{
+		Data: mcp.ReadResourceResultData{
+			Contents: []mcp.IsResourceContents{
+				mcp.TextResourceContents{
+					URI:      u.String(),
+					MimeType: "application/json",
+					Text:     string(b),
+				},
+			},
+		},
 	}, nil
 }
