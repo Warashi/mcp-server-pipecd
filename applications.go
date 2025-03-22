@@ -21,7 +21,8 @@ var resourceTemplateApplications = mcp.ResourceTemplate{
 }
 
 type listApplicationsRequest struct {
-	Cursor string `json:"cursor"`
+	Cursor string            `json:"cursor"`
+	Labels map[string]string `json:"labels"`
 }
 
 type listApplicationsResponse struct {
@@ -73,7 +74,13 @@ func (s *Server) listApplicationsTool() mcp.Tool[*listApplicationsRequest, *list
 		"List applications managed by PipeCD",
 		jsonschema.Object{
 			Properties: map[string]jsonschema.Schema{
-				"cursor": jsonschema.String{},
+				"cursor": jsonschema.String{
+					Description: "The cursor to start listing from",
+				},
+				"labels": jsonschema.Map{
+					Description:          "The labels to filter applications by",
+					AdditionalProperties: jsonschema.String{},
+				},
 			},
 		},
 		s.listApplications,
@@ -83,6 +90,7 @@ func (s *Server) listApplicationsTool() mcp.Tool[*listApplicationsRequest, *list
 func (s *Server) listApplications(ctx context.Context, request *listApplicationsRequest) (*listApplicationsResponse, error) {
 	response, err := s.client.ListApplications(ctx, &apiservice.ListApplicationsRequest{
 		Cursor: request.Cursor,
+		Labels: request.Labels,
 	})
 	if err != nil {
 		return nil, err
