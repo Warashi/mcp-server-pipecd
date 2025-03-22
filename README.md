@@ -26,6 +26,10 @@ Configure Claude or some MCP Clients with the environment variables below.
 }
 ```
 
+## Example Screenshot
+<img src="https://github.com/user-attachments/assets/1dd3da91-c9b0-460f-9c1d-b63f3ad584a3" alt="Claude Desktop Screenshot" />
+
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
