@@ -1,3 +1,4 @@
 /mcp-server-pipecd
 /.cursor
 .cursorignore
+/vendor
