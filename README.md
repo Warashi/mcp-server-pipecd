@@ -2,11 +2,29 @@
 
 This project provides an MCP (Model Context Protocol) server for PipeCD, enabling integration and management of applications and deployments.
 
-## Setup
-TBW
-
 ## Usage
-TBW
+Configure Claude or some MCP Clients with the environment variables below.
+
+- PIPECD_HOST : host of the PipeCD control plane. for example, `demo.pipecd.dev:443`
+- PIPECD_API_KEY_FILE : full path to the file which contains PipeCD API Key
+- PIPECD_INSECURE : set this as `true` if you want to connect to control plane without ssl/tls
+
+### Example Configuration
+```json
+{
+  "mcpServers": {
+    "pipecd": {
+      "command": "/Users/sawada/ghq/github.com/Warashi/mcp-server-pipecd/mcp-server-pipecd",
+      "args": [],
+      "env": {
+        "PIPECD_HOST": "demo.pipecd.dev:443",
+        "PIPECD_API_KEY_FILE": "/Users/sawada/.config/mcp-server-pipecd/api_key",
+        "PIPECD_INSECURE": "false"
+      }
+    }
+  }
+}
+```
 
 ## License
 
