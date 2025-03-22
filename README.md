@@ -10,11 +10,14 @@ Configure Claude or some MCP Clients with the environment variables below.
 - PIPECD_INSECURE : set this as `true` if you want to connect to control plane without ssl/tls
 
 ### Example Configuration
+In this example, the built binary is placed at `/Users/sawada/go/bin/mcp-server-pipecd`.
+This is the default install path when installing this server with `go install github.com/Warashi/mcp-server-pipecd@latest` with the home directory as `/Users/sawada`.
+
 ```json
 {
   "mcpServers": {
     "pipecd": {
-      "command": "/Users/sawada/ghq/github.com/Warashi/mcp-server-pipecd/mcp-server-pipecd",
+      "command": "/Users/sawada/go/bin/mcp-server-pipecd",
       "args": [],
       "env": {
         "PIPECD_HOST": "demo.pipecd.dev:443",
