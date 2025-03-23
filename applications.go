@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
-	"net/url"
-	"path"
+	"fmt"
 
 	"github.com/Warashi/go-modelcontextprotocol/jsonrpc2"
 	"github.com/Warashi/go-modelcontextprotocol/jsonschema"
 	"github.com/Warashi/go-modelcontextprotocol/mcp"
+	"github.com/Warashi/go-modelcontextprotocol/router"
 	"github.com/pipe-cd/pipecd/pkg/app/server/service/apiservice"
 	"github.com/pipe-cd/pipecd/pkg/model"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -107,8 +107,8 @@ func (s *Server) listApplications(ctx context.Context, request *listApplications
 	}, nil
 }
 
-func (s *Server) readApplication(ctx context.Context, u *url.URL) (*mcp.Result[mcp.ReadResourceResultData], error) {
-	id := path.Base(u.Path)
+func (s *Server) readApplication(ctx context.Context, u *router.Request) (*mcp.Result[mcp.ReadResourceResultData], error) {
+	id := u.Params["applicationId"]
 	if id == "" {
 		return nil, jsonrpc2.NewError(jsonrpc2.CodeInvalidParams, "missing application ID", struct{}{})
 	}
@@ -129,7 +129,7 @@ func (s *Server) readApplication(ctx context.Context, u *url.URL) (*mcp.Result[m
 		Data: mcp.ReadResourceResultData{
 			Contents: []mcp.IsResourceContents{
 				mcp.TextResourceContents{
-					URI:      u.String(),
+					URI:      fmt.Sprintf("pipecd://applications/%s", id),
 					MimeType: "application/json",
 					Text:     string(b),
 				},

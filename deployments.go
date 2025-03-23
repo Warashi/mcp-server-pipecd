@@ -4,13 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/url"
-	"path"
-	"strings"
 
 	"github.com/Warashi/go-modelcontextprotocol/jsonrpc2"
 	"github.com/Warashi/go-modelcontextprotocol/jsonschema"
 	"github.com/Warashi/go-modelcontextprotocol/mcp"
+	"github.com/Warashi/go-modelcontextprotocol/router"
 	"github.com/pipe-cd/pipecd/pkg/app/server/service/apiservice"
 	"github.com/pipe-cd/pipecd/pkg/model"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -24,7 +22,7 @@ var resourceTemplateDeployments = mcp.ResourceTemplate{
 }
 
 var resourceTemplateDeploymentStageLogs = mcp.ResourceTemplate{
-	URITemplate: "pipecd://deployment-stage-logs/{deploymentId}/{stageId}",
+	URITemplate: "pipecd://deployments/{deploymentId}/logs/{stageId}",
 	Name:        "Deployment Stage Logs",
 	Description: "Logs of a deployment stage managed by PipeCD",
 	MimeType:    "application/json",
@@ -185,7 +183,7 @@ func (s *Server) getDeployment(ctx context.Context, request *getDeploymentReques
 
 	return &mcp.EmbeddedResource{
 		Resource: mcp.TextResourceContents{
-			URI:      fmt.Sprintf("pipecd://deployment/%s", response.Deployment.GetId()),
+			URI:      fmt.Sprintf("pipecd://deployments/%s", response.Deployment.GetId()),
 			MimeType: "application/json",
 			Text:     string(b),
 		},
@@ -227,15 +225,15 @@ func (s *Server) getDeploymentStageLogs(ctx context.Context, request *getDeploym
 
 	return &mcp.EmbeddedResource{
 		Resource: mcp.TextResourceContents{
-			URI:      fmt.Sprintf("pipecd://deployment-stage-logs/%s/%s", request.DeploymentID, request.StageID),
+			URI:      fmt.Sprintf("pipecd://deployments/%s/logs/%s", request.DeploymentID, request.StageID),
 			MimeType: "application/json",
 			Text:     string(b),
 		},
 	}, nil
 }
 
-func (s *Server) readDeployment(ctx context.Context, u *url.URL) (*mcp.Result[mcp.ReadResourceResultData], error) {
-	id := path.Base(u.Path)
+func (s *Server) readDeployment(ctx context.Context, u *router.Request) (*mcp.Result[mcp.ReadResourceResultData], error) {
+	id := u.Params["deploymentId"]
 	if id == "" {
 		return nil, jsonrpc2.NewError(jsonrpc2.CodeInvalidParams, "missing deployment ID", struct{}{})
 	}
@@ -256,7 +254,7 @@ func (s *Server) readDeployment(ctx context.Context, u *url.URL) (*mcp.Result[mc
 		Data: mcp.ReadResourceResultData{
 			Contents: []mcp.IsResourceContents{
 				mcp.TextResourceContents{
-					URI:      u.String(),
+					URI:      fmt.Sprintf("pipecd://deployments/%s", deployment.Deployment.GetId()),
 					MimeType: "application/json",
 					Text:     string(b),
 				},
@@ -265,17 +263,18 @@ func (s *Server) readDeployment(ctx context.Context, u *url.URL) (*mcp.Result[mc
 	}, nil
 }
 
-func (s *Server) readDeploymentStageLogs(ctx context.Context, u *url.URL) (*mcp.Result[mcp.ReadResourceResultData], error) {
-	fields := strings.Split(strings.TrimPrefix(strings.TrimSuffix(u.Path, "/"), "/"), "/")
-	if len(fields) != 2 {
-		return nil, jsonrpc2.NewError(jsonrpc2.CodeInvalidParams, "invalid deployment stage logs URI", struct{}{})
+func (s *Server) readDeploymentStageLogs(ctx context.Context, u *router.Request) (*mcp.Result[mcp.ReadResourceResultData], error) {
+	deploymentID := u.Params["deploymentId"]
+	if deploymentID == "" {
+		return nil, jsonrpc2.NewError(jsonrpc2.CodeInvalidParams, "missing deployment ID", struct{}{})
 	}
 
-	id := fields[0]
-	stageID := fields[1]
-
+	stageID := u.Params["stageId"]
+	if stageID == "" {
+		return nil, jsonrpc2.NewError(jsonrpc2.CodeInvalidParams, "missing stage ID", struct{}{})
+	}
 	logs, err := s.client.ListStageLogs(ctx, &apiservice.ListStageLogsRequest{
-		DeploymentId: id,
+		DeploymentId: deploymentID,
 	})
 	if err != nil {
 		return nil, jsonrpc2.NewError(jsonrpc2.CodeInternalError, "failed to get deployment stage logs", struct{}{})
@@ -287,7 +286,7 @@ func (s *Server) readDeploymentStageLogs(ctx context.Context, u *url.URL) (*mcp.
 			Data: mcp.ReadResourceResultData{
 				Contents: []mcp.IsResourceContents{
 					mcp.TextResourceContents{
-						URI:      u.String(),
+						URI:      fmt.Sprintf("pipecd://deployments/%s/logs/%s", deploymentID, stageID),
 						MimeType: "application/json",
 						Text:     "{ \"error\": \"no logs found\" }",
 					},
@@ -305,7 +304,7 @@ func (s *Server) readDeploymentStageLogs(ctx context.Context, u *url.URL) (*mcp.
 		Data: mcp.ReadResourceResultData{
 			Contents: []mcp.IsResourceContents{
 				mcp.TextResourceContents{
-					URI:      u.String(),
+					URI:      fmt.Sprintf("pipecd://deployments/%s/logs/%s", deploymentID, stageID),
 					MimeType: "application/json",
 					Text:     string(b),
 				},

@@ -43,8 +43,13 @@ func main() {
 		log.Fatalf("failed to create server: %v", err)
 	}
 
+	mux := mcp.NewResourceReaderMux()
+	mux.HandleFunc("pipecd://applications/{applicationId}", s.readApplication)
+	mux.HandleFunc("pipecd://deployments/{deploymentId}", s.readDeployment)
+	mux.HandleFunc("pipecd://deployments/{deploymentId}/logs/{stageId}", s.readDeploymentStageLogs)
+
 	opts := []mcp.ServerOption{
-		mcp.WithResourceReader(s),
+		mcp.WithResourceReader(mux),
 		mcp.WithResourceTemplate(resourceTemplateApplications),
 		mcp.WithResourceTemplate(resourceTemplateDeployments),
 		mcp.WithResourceTemplate(resourceTemplateDeploymentStageLogs),
