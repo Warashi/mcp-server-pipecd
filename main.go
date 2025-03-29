@@ -59,9 +59,12 @@ func main() {
 		mcp.WithTool(s.getDeploymentStageLogsTool()),
 	}
 
-	server := mcp.NewStdioServer("PipeCD MCP Server", "0.0.1", opts...)
+	server, err := mcp.NewServer("PipeCD MCP Server", "0.0.1", opts...)
+	if err != nil {
+		log.Fatalf("failed to create server: %v", err)
+	}
 
-	if err := server.Serve(context.Background()); err != nil {
+	if err := server.ServeStdio(context.Background()); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }
