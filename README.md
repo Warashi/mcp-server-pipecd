@@ -36,3 +36,6 @@ This is the default install path when installing this server with `go install gi
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+
+## Note
+mcp-server-pipecd is indexed and certified by [MCP Review](https://mcpreview.com/mcp-servers/warashi/mcp-server-pipecd)
